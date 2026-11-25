@@ -7,6 +7,10 @@ products:
 entities:
   - entity: climate
     dps:
+      - id: 1
+        name: power
+        type: boolean
+        hidden: true
       - id: 2
         name: temperature
         type: integer
@@ -16,11 +20,19 @@ entities:
         mapping:
           - constraint: temperature_unit
             conditions:
-              - dps_val: F
+              - dps_val: f
                 value_redirect: temp_set_f
+                range:
+                  min: 41
+                  max: 95
       - id: 3
         name: current_temperature
         type: integer
+        mapping:
+          - constraint: temperature_unit
+            conditions:
+              - dps_val: f
+                value_redirect: current_temp_f
       - id: 13
         name: temperature_unit
         type: string
@@ -32,32 +44,47 @@ entities:
       - id: 14
         name: temp_set_f
         type: integer
+        hidden: true
         range:
           min: 41
           max: 95
       - id: 15
         name: current_temp_f
         type: integer
+        hidden: true
       - id: 5
-        name: preset_mode
+        name: hvac_mode
         type: string
         mapping:
           - dps_val: H0
             value: "off"
           - dps_val: H1
+            constraint: power
+            conditions:
+              - dps_val: true
+                value: heat
+              - dps_val: false
+                value: "off"
+                hidden: true
+          - dps_val: H2
+            hidden: true
+            constraint: power
+            conditions:
+              - dps_val: true
+                value: heat
+              - dps_val: false
+                value: "off"
+      - id: 5
+        name: preset_mode
+        type: string
+        mapping:
+          - dps_val: H0
+            value: none
+            hidden: true
+          - dps_val: H1
             value: low
           - dps_val: H2
-            value: medium
-          - dps_val: H3
             value: high
-      - id: 103
-        name: hvac_mode
-        type: boolean
-        mapping:
-          - dps_val: false
-            value: heat
-          - dps_val: true
-            value: "off"
   - entity: light
     translation_key: flame
     dps:
@@ -147,3 +174,11 @@ entities:
             value: "4h"
           - dps_val: "5h"
             value: "5h"
+  - entity: switch
+    name: Heat lockout
+    icon: "mdi:radiator-off"
+    category: config
+    dps:
+      - id: 103
+        name: switch
+        type: boolean
